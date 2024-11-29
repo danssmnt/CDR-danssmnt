@@ -330,7 +330,7 @@ void getSizeString(char string[16], uint64_t size) {
   double double_size = (double)size;
 
   int i = 0;
-  static char *units[] = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
+  static char *units[] = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" }; // Is it really needed?
   while( double_size >= 1024.0 ) {
     double_size /= 1024.0;
     i++;
@@ -338,24 +338,52 @@ void getSizeString(char string[16], uint64_t size) {
   snprintf(string, 16, "%.*f %s", (i == 0) ? 0 : 2, double_size, units[i]);
 }
 
-// Convert a string to a lowercase string
-char* string_to_lower(char* c) {
-  if ( c == NULL ) return NULL;
-
-  size_t i;
-  size_t c_length = strlen(c);
-
-  for ( i = 0; i < c_length; i++ ) {
-    if ( isupper(c[i]) ) {
-      c[i] = tolower(c[i]);
-    }
-  }
-
-  return c;
+// Check if filename (or path) ends with string (used normally for extension)
+int fileEndsWithString(char *filename, char* extension) {
+  // sometimes filenames are uppercase (for some reason idk)
+  return !stricmp(filename + strlen(filename) - strlen(extension), extension);
 }
 
-// Check if filename (or path) ends with extension
-int fileEndsWithExtension(char *filename, char* extension) {
-  // sometimes filenames are uppercase (for some reason idk)
-  return strcmp(string_to_lower(filename) + strlen(filename) - strlen(extension), string_to_lower(extension)) == 0;
+int GetExtensionStartIndex(char* filename)
+{
+  int str_index;
+  
+  // Scan from end to start of string (to find last '.')
+  for (str_index = strlen(filename)-1; str_index > 0; str_index--)
+  {
+    if (filename[str_index] == '.')
+    {
+      return str_index;
+    }
+  }
+  
+  // Not found
+  return -1;
+}
+
+void GetFileExtension(char* filename, char* extension, int ext_length)
+{
+  // Find last '.'
+  int extension_start_index = GetExtensionStartIndex(filename);
+  
+  if (extension_start_index == -1)
+  {
+    extension[0] = '\0';
+    return;
+  }
+
+  int char_index = extension_start_index;
+  
+  int i = 0;
+  
+  for (; filename[char_index] != '\0'; char_index++) {
+  
+    if (i >= ext_length - 1) { // Stop if extension buffer is full
+      break;
+    }
+    
+    extension[i++] = filename[char_index];
+  }
+  
+  extension[i] = '\0';
 }

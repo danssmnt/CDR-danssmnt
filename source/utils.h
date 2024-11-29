@@ -52,6 +52,7 @@ float distanceBetweenCoordinates3d(float x1, float y1, float z1, float x2, float
 
 void getSizeString(char string[16], uint64_t size);
 
-int fileEndsWithExtension(char *filename, char* extension);
+int fileEndsWithString(char *filename, char* extension);
+void GetFileExtension(char* filename, char* extension, int ext_length);
 
 #endif

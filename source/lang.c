@@ -226,8 +226,8 @@ LangFileTable *SearchLangFiles() {
     while (sceIoDread(dir, &dirent) > 0) {
         if (FIO_SO_ISREG(dirent.d_stat.st_attr)) {
             // Suffix to ignore an .ini file (add "_ignore.ini" to the filename)
-            if (fileEndsWithExtension(dirent.d_name, "_ignore.ini")) continue;
-            if (fileEndsWithExtension(dirent.d_name, ".ini") && strcmp(dirent.d_name, "sample.ini") != 0) {
+            if (fileEndsWithString(dirent.d_name, "_ignore.ini")) continue;
+            if (fileEndsWithString(dirent.d_name, ".ini") && strcmp(dirent.d_name, "sample.ini") != 0) {
                 GetINIInfo(main_file_table, dirent.d_name);
             }
         }

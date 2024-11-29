@@ -468,7 +468,7 @@ void drawLegendMessage(char *str, int side, int pos, u32 color) { // side: 0 = L
 
 
 #if defined(PREVIEW) || defined(USERSCRIPTS)
-char extension[5];
+char extension[8]; // extension can be 8 chars long (including '.')
 char filename[64];
 
 #define META_DESC_SIZE 90  // max length
@@ -624,7 +624,7 @@ int usercheats_draw() {
   }
   
   /// error checks of selected file
-  if( !stricmp(extension, ".txt") ) { // check for txt
+  if( !stricmp(extension, ".txt") || !stricmp(extension, ".sc") ) { // check for txt / sc
     
     /// read in ALL cheat names and CURRENT selected cheat's meta data
     if( readtxtneeded || (usercheat_waittime > 0 && getGametime() > usercheat_waittime) ) {
@@ -1122,7 +1122,7 @@ int userscripts_draw() { // this is the worst code and I'm not proud of it
     
     if( userscript_options == 0 ) { // folder found but empty
       drawString(translate_string("No UserScript files found!"), ALIGN_CENTER, FONT_DIALOG, SIZE_NORMAL, SHADOW_OFF, SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - userscript_row_spacing, COLOR_TEXT);
-      snprintf(buffer, sizeof(buffer), translate_string("Place .txt files to '%s%s%s/'"), basefolder, folder_scripts, LCS ? "LCS" : "VCS");
+      snprintf(buffer, sizeof(buffer), translate_string("Place .txt / .sc files to '%s%s%s/'"), basefolder, folder_scripts, LCS ? "LCS" : "VCS");
       drawString(buffer, ALIGN_CENTER, FONT_DIALOG, SIZE_NORMAL, SHADOW_OFF, SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + userscript_row_spacing, COLOR_TEXT);
       return -1; // no cheats folder
     }
@@ -1182,8 +1182,9 @@ int userscripts_draw() { // this is the worst code and I'm not proud of it
         do { // skip "." entries
           sceIoDread(fd, &d_dir);
         } while(d_dir.d_name[0] == '.');
-      
-        memcpy(extension, d_dir.d_name + strlen(d_dir.d_name) - 4, 5);
+        
+        
+        GetFileExtension(d_dir.d_name, extension, sizeof(extension)); // Get file extension
         strcpy(filename, d_dir.d_name); // save filename
             
         #ifdef DEBUG
@@ -1205,7 +1206,7 @@ int userscripts_draw() { // this is the worst code and I'm not proud of it
     
         /// draw name  
         COLOR_TEMP = COLOR_CHEAT_OFF;
-        if( stricmp(extension, ".txt") ) {
+        if( stricmp(extension, ".txt") && stricmp(extension, ".sc") ) {
            
           if( d_dir.d_stat.st_attr & FIO_SO_IFDIR ) { // check folder
             
@@ -1222,7 +1223,7 @@ int userscripts_draw() { // this is the worst code and I'm not proud of it
             COLOR_TEMP = GREY; // not a valid txt file (grey out)
           
         } else
-          filename[strlen(filename)-4] = '\0'; // remove .txt from displayed name
+          filename[strlen(filename)-strlen(extension)] = '\0'; // remove extension from displayed filename
         
         snprintf(buffer, sizeof(buffer), "%s", filename); 
         drawString(buffer, ALIGN_FREE, FONT_DIALOG, SIZE_NORMAL, SHADOW_OFF, x, y, COLOR_TEMP);      
@@ -1234,7 +1235,7 @@ int userscripts_draw() { // this is the worst code and I'm not proud of it
   } 
   
   /// error checks of selected file
-  if( !stricmp(currentexten, ".txt") ) { // check for txt
+  if( !stricmp(currentexten, ".txt") || !stricmp(currentexten, ".sc") ) { // check for txt / sc
   
     /// read in meta data
     if( userscript_readtxtneeded || (userscript_waittime > 0 && getGametime() > userscript_waittime) ) {
@@ -1395,7 +1396,7 @@ int userscripts_draw() { // this is the worst code and I'm not proud of it
     snprintf(buffer, sizeof(buffer), "%s%s", script_workfldr, currentfile);
     //drawString(buffer, ALIGN_RIGHT, FONT_DIALOG, SIZE_SMALL, SHADOW_OFF, 440.0f, 10.0f, RED);
     if( doesFileExist(buffer) == 1 ) { // its a file
-      if( !stricmp(currentexten, ".txt") ) { // and its a txt
+      if( !stricmp(currentexten, ".txt") || !stricmp(currentexten, ".sc") ) { // and its a txt / sc
         snprintf(buffer, sizeof(buffer), translate_string("Author: %s"), meta_author );
         drawLegendMessage(buffer, 0, 2, COLOR_TEXT); // left side, first row
           
@@ -1411,7 +1412,7 @@ int userscripts_draw() { // this is the worst code and I'm not proud of it
         snprintf(buffer, sizeof(buffer), translate_string("Description: %s"), meta_description );
         drawLegendMessage(buffer, 0, 0, COLOR_TEXT); // left side, third row
           
-      } else drawLegendMessage(translate_string("This is not a valid .txt file!"), 0, 2, COLOR_TEXT); // left side, first row
+      } else drawLegendMessage(translate_string("This is not a valid .txt / .sc file!"), 0, 2, COLOR_TEXT); // left side, first row
     
     } else { //its a folder
       if( countFilesInFolder(buffer) > 0 || (countFoldersInFolder(buffer) > 0)) {
@@ -1520,7 +1521,7 @@ int userscripts_ctrl() {
       Yes, it somehow works but please do not take it as an example as 
       this is not how it should be done! :D
       ****************************************************************/  
-      if( !stricmp(currentexten, ".txt") ) {
+      if( !stricmp(currentexten, ".txt") || !stricmp(currentexten, ".sc") ) {
         closeMenu();  
         
         #if defined(LOG) || defined(USERSCRIPTLOG)
